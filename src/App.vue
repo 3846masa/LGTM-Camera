@@ -214,7 +214,7 @@ export default {
     checkDevice() {
       if (this.mobileDetect.os() !== 'AndroidOS') {
         alert('Please access via Android.');
-        location.href = '../';
+        location.href = './';
       }
     },
     initStream() {
