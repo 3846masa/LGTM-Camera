@@ -322,8 +322,8 @@ export default {
         fontWeight: overlayTextStyle.fontWeight,
         fontSize,
         textAlign: 'center',
-        textBaseline: 'bottom',
-        // textYCoordinate: 150,
+        textBaseline: (this.overlayTextType === 'normal') ? 'middle' : 'bottom',
+        textYCoordinate: (this.overlayTextType === 'normal') ? 150 : null,
         progressCallback: (progress) => {
           this.progress = progress;
         },
