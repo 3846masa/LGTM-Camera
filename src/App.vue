@@ -1,6 +1,7 @@
 <style lang="postcss">
 @import "normalize.css";
 @import "bulma/css/bulma.css";
+@import "font-awesome/css/font-awesome.css";
 
 html, body, .root {
   width: 100vw;
@@ -26,18 +27,28 @@ html, body, .root {
   }
 }
 
-.root__videoPreview > p {
+.root__overlayText {
   position: absolute;
   display: inline-block;
   width: 100%;
   text-align: center;
+  white-space: nowrap;
+  margin: 0;
+  color: white;
+  font-weight: bold;
+}
+
+.root__overlayText[type="normal"] {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  margin: 0;
-  color: white;
-  font-size: calc(100vw / 4);
-  font-weight: bold;
+}
+
+.root__overlayText[type="godzilla"] {
+  bottom: 0;
+  left: 0;
+  transform: scaleX(0.85);
+  letter-spacing: -0.03em;
 }
 
 .root__videoPreview > progress {
@@ -82,12 +93,20 @@ html, body, .root {
     v-show="status === STATUS.STOP || status === STATUS.RECORDING",
   )
     video(ref="video", muted, autoplay)
-    p.root__overlayText {{text}}
+    p.root__overlayText(
+      ref="overlayText", :style="styles.root__overlayText",
+      :type="overlayTextType",
+    )
+      span {{text}}
   .root__videoContainer.root__videoPreview(
     v-show="status === STATUS.GENERATING",
   )
     video(ref="recorded", loop, muted, autoplay)
-    p.root__overlayText {{text}}
+    p.root__overlayText(
+      ref="overlayText", :style="styles.root__overlayText",
+      :type="overlayTextType",
+    )
+      span {{text}}
     progress.progress.is-info(:value="progress * 10", max="11")
   .root__videoContainer(
     v-show="status === STATUS.GENERATED",
@@ -97,9 +116,16 @@ html, body, .root {
     .column.is-3-mobile.is-flex.has-text-left
       button.button.is-outlined.is-danger(@click="reset") RESET
     .column.is-1-mobile.is-flex
+      button.button
+        i.fa(
+        :class="{\
+          'fa-thumbs-o-up': overlayTextType === 'normal',\
+          'fa-warning': overlayTextType === 'godzilla',\
+        }", @click="toggleType")
     .column.is-4-mobile.is-flex
       input.input(
-        v-model="text", placeholder="LGTM", :disabled="status !== STATUS.STOP"
+        v-model="text", placeholder="LGTM", :disabled="status !== STATUS.STOP",
+        @keyup.enter="blur",
       )
     .column.is-1-mobile.is-flex
     .column.is-3-mobile.is-flex.has-text-right
@@ -110,15 +136,20 @@ html, body, .root {
     capture-button.root__captureButton(
       :time="recTime", @start="startRecord", @stop="stopRecord",
     )
-  japont-config(ref="japont", src="ipaex/ipaex-mincho.woff" selector=".root__overlayText" alias="IPAexMincho")
+  japont-config(
+    ref="japont", src="ipaex/ipaex-mincho.woff",
+    selector=".root__overlayText[type='godzilla']", alias="IPAexMincho"
+  )
 </template>
 
 <script>
 import RecordRTC from 'recordrtc';
 import gifshot from 'gifshot';
 import { saveAs } from 'file-saver';
-import CaptureButton from './CaptureButton.vue';
 import debounce from 'lodash.debounce';
+import eaw from 'eastasianwidth';
+import MobileDetect from 'mobile-detect';
+import CaptureButton from './CaptureButton.vue';
 
 const STATUS = {
   INIT: 0,
@@ -130,6 +161,7 @@ const STATUS = {
 
 export default {
   data: () => ({
+    mobileDetect: new MobileDetect(window.navigator.userAgent),
     stream: null,
     recordRTC: null,
     recorded: null,
@@ -140,6 +172,7 @@ export default {
     recStartDate: null,
     devices: [],
     text: 'LGTM',
+    overlayTextType: 'normal',
     constraints: {
       audio: false,
       video: true,
@@ -150,6 +183,11 @@ export default {
       videoBitsPerSecond: 128000,
       numWorkers: 4,
     },
+    styles: {
+      root__overlayText: {
+        fontSize: '',
+      },
+    },
     STATUS,
   }),
   computed: {},
@@ -158,20 +196,27 @@ export default {
       this.$refs.video.srcObject = stream;
       this.recordRTC = new RecordRTC(stream, this.options);
     },
-    status(status) {
-      if (status === STATUS.RECORDING) {
-        this.recStartDate = new Date();
-        this.updateRecTime();
-      }
-    },
     text() {
+      this.fitOverlayText();
+      this.reloadFont();
+    },
+    overlayTextType() {
       this.reloadFont();
     },
   },
   mounted() {
+    this.checkDevice();
     this.initStream();
+    this.initCanvasPatch();
+    this.fitOverlayText();
   },
   methods: {
+    checkDevice() {
+      if (this.mobileDetect.os() !== 'AndroidOS') {
+        alert('Please access via Android.');
+        location.href = '../';
+      }
+    },
     initStream() {
       navigator.mediaDevices.enumerateDevices()
         .then((devices) => {
@@ -191,6 +236,22 @@ export default {
             .catch(this.initStreamErrorHandler.bind(this));
         });
     },
+    initCanvasPatch() {
+      const originalFillText = CanvasRenderingContext2D.prototype.fillText;
+      const self = this;
+      CanvasRenderingContext2D.prototype.fillText = function fillText(text, x, y) {
+        if (self.overlayTextType === 'godzilla') {
+          this.canvas.style['letter-spacing'] = '-0.03em';
+          const textWidth =
+            self.$refs.overlayText.querySelector('span').getBoundingClientRect().width;
+          const calcedWidth =
+            (textWidth * 300) / window.innerWidth;
+          originalFillText.call(this, text, x, y, calcedWidth);
+        } else {
+          originalFillText.call(this, text, x, y);
+        }
+      };
+    },
     initStreamSuccessHandler(stream) {
       this.stream = stream;
       this.status = STATUS.STOP;
@@ -209,6 +270,8 @@ export default {
       if (this.status === STATUS.STOP) {
         this.status = STATUS.RECORDING;
         this.recordRTC.startRecording();
+        this.recStartDate = new Date();
+        this.updateRecTime();
       }
     },
     stopRecord() {
@@ -244,6 +307,10 @@ export default {
       const duration = this.recTime;
       const interval = (duration <= 4) ? 0.1 : 0.2;
 
+      const overlayTextStyle = window.getComputedStyle(this.$refs.overlayText);
+      const fontSize =
+        `${(parseFloat(overlayTextStyle.fontSize) * 300) / window.innerWidth}px`;
+
       gifshot.createGIF({
         video: [this.recorded],
         interval,
@@ -251,12 +318,12 @@ export default {
         gifWidth: 300,
         gifHeight: 300,
         text: this.text,
-        fontFamily: 'IPAexMincho',
-        fontWeight: 'bold',
-        fontSize: `${(300 / 4)}px`,
+        fontFamily: overlayTextStyle.fontFamily,
+        fontWeight: overlayTextStyle.fontWeight,
+        fontSize,
         textAlign: 'center',
-        textBaseline: 'middle',
-        textYCoordinate: 150,
+        textBaseline: 'bottom',
+        // textYCoordinate: 150,
         progressCallback: (progress) => {
           this.progress = progress;
         },
@@ -273,14 +340,34 @@ export default {
     reset() {
       location.reload();
     },
+    toggleType() {
+      const type = this.overlayTextType;
+      if (type === 'normal') {
+        this.overlayTextType = 'godzilla';
+      } else {
+        this.overlayTextType = 'normal';
+      }
+    },
     downloadGif() {
       fetch(this.gifImage)
         .then(res => res.blob())
         .then(blob => saveAs(blob, `${this.text}.gif`));
     },
+    fitOverlayText() {
+      const len =
+        (this.type === 'normal')
+        ? eaw.length(this.text) / 2
+        : this.text.length;
+      this.styles.root__overlayText.fontSize = `calc(90vw / ${len})`;
+    },
     reloadFont: debounce(function reloadFont() {
-      this.$refs.japont.reload();
+      if (this.overlayTextType === 'godzilla') {
+        this.$refs.japont.reload();
+      }
     }, 1000),
+    blur($event) {
+      $event.target.blur();
+    },
   },
   components: {
     CaptureButton,
