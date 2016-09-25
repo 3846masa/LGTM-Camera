@@ -9,9 +9,14 @@
       }
     ]
   ],
+  "plugins": [
+    "transform-node-env-inline"
+  ],
   "env": {
     "production": {
-      "presets": ["babili"]
+      "presets": [
+        "babili"
+      ]
     }
   }
 }

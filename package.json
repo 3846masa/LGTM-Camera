@@ -21,6 +21,7 @@
   "devDependencies": {
     "babel-core": "6.14.0",
     "babel-eslint": "6.1.2",
+    "babel-plugin-transform-node-env-inline": "6.8.0",
     "babel-preset-babili": "0.0.3",
     "babel-preset-env": "0.0.1",
     "babel-runtime": "6.11.6",
