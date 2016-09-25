@@ -5,11 +5,19 @@
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
     <title>LGTM Camera</title>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bowser/1.0.0/bowser.min.js"></script>
     <script src="//rawgit.com/yahoo/gifshot/0.3.2/build/gifshot.min.js"></script>
     <script src="//japont.mikumiku.moe/japont.min.js"></script>
   </head>
   <body>
     <App></App>
+
+    <script>
+      if (!(bowser.chrome && bowser.android && bowser.mobile)) {
+        location.href = './';
+      }
+    </script>
     <script src="./lib/index.min.js"></script>
   </body>
 </html>
