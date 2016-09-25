@@ -1,8 +1,4 @@
 <style lang="postcss">
-@import "normalize.css";
-@import "bulma/css/bulma.css";
-@import "font-awesome/css/font-awesome.css";
-
 html, body, .root {
   width: 100vw;
   height: 100vh;
@@ -145,10 +141,9 @@ html, body, .root {
 <script>
 import RecordRTC from 'recordrtc';
 import gifshot from 'gifshot';
-import { saveAs } from 'file-saver';
+import saveAs from 'file-saver';
 import debounce from 'lodash.debounce';
 import eaw from 'eastasianwidth';
-import MobileDetect from 'mobile-detect';
 import CaptureButton from './CaptureButton.vue';
 
 const STATUS = {
@@ -161,7 +156,6 @@ const STATUS = {
 
 export default {
   data: () => ({
-    mobileDetect: new MobileDetect(window.navigator.userAgent),
     stream: null,
     recordRTC: null,
     recorded: null,
@@ -205,18 +199,11 @@ export default {
     },
   },
   mounted() {
-    this.checkDevice();
     this.initStream();
     this.initCanvasPatch();
     this.fitOverlayText();
   },
   methods: {
-    checkDevice() {
-      if (this.mobileDetect.os() !== 'AndroidOS') {
-        alert('Please access via Android.');
-        location.href = './';
-      }
-    },
     initStream() {
       navigator.mediaDevices.enumerateDevices()
         .then((devices) => {
