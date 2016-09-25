@@ -1,6 +1,6 @@
 {
   "name": "lgtm-camera-on-web",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "author": "3846masa",
   "browserify": {
     "transform": [
