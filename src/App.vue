@@ -171,11 +171,10 @@ export default {
       audio: false,
       video: true,
     },
-    options: {
+    recordRTCOptions: {
       mimeType: 'video/mp4',
       type: 'video',
-      videoBitsPerSecond: 128000,
-      numWorkers: 4,
+      numWorkers: 2,
     },
     styles: {
       root__overlayText: {
@@ -188,7 +187,7 @@ export default {
   watch: {
     stream(stream) {
       this.$refs.video.srcObject = stream;
-      this.recordRTC = new RecordRTC(stream, this.options);
+      this.recordRTC = new RecordRTC(stream, this.recordRTCOptions);
     },
     text() {
       this.fitOverlayText();
