@@ -4,14 +4,40 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
     <title>LGTM Camera</title>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bowser/1.0.0/bowser.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.2.0/css/bulma.min.css">
   </head>
   <body>
-    <h1>LGTM Camera on Web</h1>
-    <p>
-      <strong>Android Only</strong>
-    </p>
-    <p>
-      <a href="./record.html">Enter</a>
-    </p>
+    <section class="hero is-dark is-fullheight">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title">
+            LGTM Camera on Web
+          </h1>
+          <h2 class="subtitle">
+            Chrome Android only
+          </h2>
+          <hr>
+          <div class="content">
+            <p>
+              <a id="enter" class="button is-info" href="./record">
+                Enter
+              </a>
+            </p>
+            <div id="warning" class="notification is-warning" hidden>
+              Please access via Chrome Android.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      if (!(bowser.chrome && bowser.android && bowser.mobile)) {
+        document.getElementById('enter').setAttribute('disabled', 'true');
+        document.getElementById('warning').removeAttribute('hidden');
+      }
+    </script>
   </body>
 </html>

@@ -4,8 +4,7 @@
 <template lang="pug">
 svg(
   viewBox="0 0 100 100", style="transform: rotate(-90deg);",
-  @mousedown.prevent="emit('start', $event)", @mouseup.prevent="emit('stop', $event)",
-  @touchstart.prevent="emit('start', $event)", @touchend.prevent="emit('stop', $event)",
+  @touchstart.prevent="emit('start')", @touchend.prevent="emit('stop')",
 )
   circle.captureButton__bg(
     cx="50", cy="50", :r="radius",
@@ -38,12 +37,9 @@ svg(
 </template>
 
 <script>
-import MobileDetect from 'mobile-detect';
-
 export default {
   data: () => ({
     strokeWidth: 10,
-    mobileDetect: new MobileDetect(window.navigator.userAgent),
   }),
   props: [
     'time',
@@ -66,13 +62,8 @@ export default {
       const len = (sec / 12) * this.circumference;
       return -1 * len;
     },
-    emit(evName, event) {
-      if (
-        (this.mobileDetect.mobile() && event.type.includes('touch')) ||
-        (!this.mobileDetect.mobile() && event.type.includes('mouse'))
-      ) {
-        this.$emit(evName);
-      }
+    emit(evName) {
+      this.$emit(evName);
     },
   },
   components: {},

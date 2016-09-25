@@ -1,4 +1,17 @@
 {
-  "presets": [ "es2015" ],
-  "plugins": [ "transform-runtime" ]
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "chrome": 52
+        }
+      }
+    ]
+  ],
+  "env": {
+    "production": {
+      "presets": ["babili"]
+    }
+  }
 }
