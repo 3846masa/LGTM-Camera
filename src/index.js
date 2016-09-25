@@ -12,4 +12,12 @@ if (
   Vue.config.devtools = true;
 }
 
+navigator.serviceWorker.register('/serviceworker.js')
+  .then((registration) => {
+    console.log(registration);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
 new Vue(App).$mount('App');
