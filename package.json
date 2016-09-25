@@ -48,7 +48,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production npm-run-all build:browserify",
-    "build:browserify": "browserify -vd -p licensify -e ./src/index.js > ./lib/index.min.js",
+    "build:browserify": "browserify -v -p licensify -e ./src/index.js -o ./lib/index.min.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "npm-run-all -p watch:*",
     "watch:browserify": "watchify -vd -p licensify -e ./src/index.js -o ./lib/index.min.js",
