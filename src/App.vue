@@ -266,9 +266,16 @@ export default {
         this.progress = 0;
         this.recordRTC.stopRecording((videoURL) => {
           this.recorded = videoURL;
+        });
+
+        (function loop() {
+          if (!this.recorded) {
+            setTimeout(loop.bind(this), 10);
+            return;
+          }
           this.playPreview();
           this.createGif();
-        });
+        }).bind(this)();
       }
     },
     playPreview() {
