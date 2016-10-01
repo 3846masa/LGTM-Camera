@@ -264,12 +264,12 @@ export default {
       if (this.status === STATUS.RECORDING) {
         this.status = STATUS.GENERATING;
         this.progress = 0;
-        this.recordRTC.stopRecording((videoURL) => {
-          this.recorded = videoURL;
-        });
 
         (function loop() {
           if (!this.recorded) {
+            this.recordRTC.stopRecording((videoURL) => {
+              this.recorded = videoURL;
+            });
             setTimeout(loop.bind(this), 10);
             return;
           }
@@ -284,12 +284,16 @@ export default {
 
       this.$refs.recorded.src = this.recorded;
       this.$refs.recorded.playbackRate = playbackRate;
+      this.$refs.recorded.play();
     },
     updateRecTime() {
       if (this.status === STATUS.RECORDING) {
         this.recTime = (new Date() - this.recStartDate) / 1000;
         if (this.recTime > 10) {
-          this.stopRecord();
+          this.recTime = 10;
+          this.recordRTC.stopRecording((videoURL) => {
+            this.recorded = videoURL;
+          });
         }
         requestAnimationFrame(this.updateRecTime.bind(this));
       }
