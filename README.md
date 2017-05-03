@@ -1,5 +1,7 @@
 # LGTM Camera on Web
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/3846masa/LGTM-Camera-on-Web.svg)](https://greenkeeper.io/)
+
 Inspired by [LGTM Camera].
 
 [LGTM Camera]: https://lgtm.hatelabo.jp/
